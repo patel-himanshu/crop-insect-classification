@@ -34,21 +34,33 @@ class MainPage extends StatefulWidget {
 class _MainPageState extends State<MainPage> {
   File _image;
   List _recognitions;
-  // String _model = 'GoogLeNet';
   // double _imageHeight;
   // double _imageWidth;
   bool _busy = false;
 
-  Future cameraCapture() async {
+  void fileInfo(image) {
+    new FileImage(image)
+        .resolve(new ImageConfiguration())
+        .addListener(ImageStreamListener((ImageInfo info, bool _) {
+      setState(() {
+        // _imageHeight = info.image.height.toDouble();
+        // _imageWidth = info.image.width.toDouble();
+      });
+    }));
+  }
+
+  // Function to upload image using Camera
+  Future cameraUpload() async {
     var image = await ImagePicker.pickImage(source: ImageSource.camera);
     if (image == null) return;
     setState(() {
       _image = image;
       _busy = true;
     });
-//    predictImage(image);
+    fileInfo(image);
   }
 
+  // Function to upload image from Gallery
   Future galleryUpload() async {
     var image = await ImagePicker.pickImage(source: ImageSource.gallery);
     if (image == null) return;
@@ -56,28 +68,58 @@ class _MainPageState extends State<MainPage> {
       _image = image;
       _busy = true;
     });
-//    predictImage(image);
+    fileInfo(image);
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _busy = true;
+
+    loadModel(_image).then((val) {
+      setState(() {
+        _busy = false;
+      });
+    });
   }
 
   Future loadModel(File image) async {
     Tflite.close();
-    String res = await Tflite.loadModel(
-      model: 'googlenet.tflite',
-      labels: 'labels.txt',
+    await Tflite.loadModel(
+      model: 'assets/googlenet.tflite',
+      labels: 'assets/labels.txt',
       numThreads: 1, // Default value
     );
+  }
 
+  Future recognizeImage(File image) async {
     List recognitions = await Tflite.runModelOnImage(
       path: image.path,
-      numResults: 6,
-      threshold: 0.05,
-      imageMean: 127.5,
-      imageStd: 127.5,
+      numResults: 2, // Default = 5
+      threshold: 0.2, // Default = 0.1
+      imageMean: 0.0, // Default = 117.0
+      imageStd: 255.0, // Default = 1.0
     );
 
     setState(() {
       _recognitions = recognitions;
     });
+  }
+
+  onSelect(model) async {
+    setState(() {
+      _busy = true;
+      _recognitions = null;
+    });
+
+    await loadModel(_image);
+
+    if (_image != null)
+      fileInfo(_image);
+    else
+      setState(() {
+        _busy = false;
+      });
   }
 
   // static Future<String> loadModel() async {
@@ -111,37 +153,50 @@ class _MainPageState extends State<MainPage> {
     List<Widget> stackChildren = [];
 
     if (_recognitions != null) {
-      stackChildren.add(Positioned(
-        top: 0.0,
-        left: 0.0,
-        width: size.width,
-        child: _image == null
-            ? Text('No image selected.')
-            : Container(
-                decoration: BoxDecoration(
-                    image: DecorationImage(
-                        alignment: Alignment.topCenter,
-                        image: MemoryImage(_recognitions),
-                        fit: BoxFit.fill)),
-                child: Opacity(opacity: 0.3, child: Image.file(_image))),
-      ));
+      stackChildren.add(
+        Positioned(
+          top: 0.0,
+          left: 0.0,
+          width: size.width,
+          child: _image == null
+              ? Text('No image selected.')
+              : Text('If Condition'),
+              // : Container(
+              //     decoration: BoxDecoration(
+              //       image: DecorationImage(
+              //           alignment: Alignment.topCenter,
+              //           image: MemoryImage(_recognitions),
+              //           fit: BoxFit.fill),
+              //     ),
+              //     child: Opacity(
+              //       opacity: 0.3,
+              //       child: Image.file(_image),
+              //     ),
+              //   ),
+        ),
+      );
     } else {
-      stackChildren.add(Positioned(
-        top: 0.0,
-        left: 0.0,
-        width: size.width,
-        child: _image == null
-            ? Center(
-                child: Text('Please, select an image.',
+      stackChildren.add(
+        Positioned(
+          top: 0.0,
+          left: 0.0,
+          width: size.width,
+          child: _image == null
+              ? Center(
+                  child: Text(
+                    'Please, select an image.',
                     style: TextStyle(
                       fontSize: 20.0,
                       fontWeight: FontWeight.bold,
-                    )),
-              )
-            : Center(child: Image.file(_image)),
-      ));
+                    ),
+                  ),
+                )
+              : Text('Else Condition'), //Center(child: Image.file(_image)),
+        ),
+      );
     }
 
+    // Displays Circular Progress Indicator, whenever app is processing
     if (_busy) {
       stackChildren.add(const Opacity(
         child: ModalBarrier(dismissible: false, color: Colors.grey),
@@ -176,14 +231,16 @@ class _MainPageState extends State<MainPage> {
           mainAxisAlignment: MainAxisAlignment.end,
           children: <Widget>[
             FloatingActionButton(
-              onPressed: cameraCapture,
+              onPressed: cameraUpload,
               tooltip: 'Capture Image from Camera',
               child: Icon(Icons.add_a_photo),
               foregroundColor: Colors.white,
               backgroundColor: Colors.blue[900],
               elevation: 7.0,
             ),
-            SizedBox(height: 5.0,),
+            SizedBox(
+              height: 5.0,
+            ),
             FloatingActionButton(
               onPressed: galleryUpload,
               tooltip: 'Upload Image from Gallery',
