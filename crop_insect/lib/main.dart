@@ -39,8 +39,18 @@ class _MainPageState extends State<MainPage> {
   // double _imageWidth;
   bool _busy = false;
 
-  Future getImage() async {
+  Future cameraCapture() async {
     var image = await ImagePicker.pickImage(source: ImageSource.camera);
+    if (image == null) return;
+    setState(() {
+      _image = image;
+      _busy = true;
+    });
+//    predictImage(image);
+  }
+
+  Future galleryUpload() async {
+    var image = await ImagePicker.pickImage(source: ImageSource.gallery);
     if (image == null) return;
     setState(() {
       _image = image;
@@ -64,7 +74,6 @@ class _MainPageState extends State<MainPage> {
       imageMean: 127.5,
       imageStd: 127.5,
     );
-//    print(recognitions);
 
     setState(() {
       _recognitions = recognitions;
@@ -141,7 +150,6 @@ class _MainPageState extends State<MainPage> {
       stackChildren.add(const Center(child: CircularProgressIndicator()));
     }
 
-
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
@@ -164,13 +172,27 @@ class _MainPageState extends State<MainPage> {
             ),
           ),
         ),
-        floatingActionButton: FloatingActionButton(
-          onPressed: getImage,
-          tooltip: 'Pick Image',
-          child: Icon(Icons.add_a_photo),
-          foregroundColor: Colors.white,
-          backgroundColor: Colors.blue[900],
-          elevation: 7.0,
+        floatingActionButton: Column(
+          mainAxisAlignment: MainAxisAlignment.end,
+          children: <Widget>[
+            FloatingActionButton(
+              onPressed: cameraCapture,
+              tooltip: 'Capture Image from Camera',
+              child: Icon(Icons.add_a_photo),
+              foregroundColor: Colors.white,
+              backgroundColor: Colors.blue[900],
+              elevation: 7.0,
+            ),
+            SizedBox(height: 5.0,),
+            FloatingActionButton(
+              onPressed: galleryUpload,
+              tooltip: 'Upload Image from Gallery',
+              child: Icon(Icons.insert_photo),
+              foregroundColor: Colors.white,
+              backgroundColor: Colors.blue[900],
+              elevation: 7.0,
+            ),
+          ],
         ),
         floatingActionButtonLocation:
             FloatingActionButtonLocation.endFloat, // Default value
