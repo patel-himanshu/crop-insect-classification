@@ -32,18 +32,45 @@ class MainPage extends StatefulWidget {
 }
 
 class _MainPageState extends State<MainPage> {
-  // 'await' can only be used in a function body with either 'async' or 'async*' function
+  File _image;
+  List _recognitions;
+  // String _model = 'GoogLeNet';
+  // double _imageHeight;
+  // double _imageWidth;
+  bool _busy = false;
 
-  // Method 1
-  loadModel() async {
-    String googlenet = await Tflite.loadModel(
-      model: 'googlenet.tflite',
-      labels: 'labels.txt',
-      numThreads: 1,
-    );
+  Future getImage() async {
+    var image = await ImagePicker.pickImage(source: ImageSource.camera);
+    if (image == null) return;
+    setState(() {
+      _image = image;
+      _busy = true;
+    });
+//    predictImage(image);
   }
 
-  // Method 2
+  Future loadModel(File image) async {
+    Tflite.close();
+    String res = await Tflite.loadModel(
+      model: 'googlenet.tflite',
+      labels: 'labels.txt',
+      numThreads: 1, // Default value
+    );
+
+    List recognitions = await Tflite.runModelOnImage(
+      path: image.path,
+      numResults: 6,
+      threshold: 0.05,
+      imageMean: 127.5,
+      imageStd: 127.5,
+    );
+//    print(recognitions);
+
+    setState(() {
+      _recognitions = recognitions;
+    });
+  }
+
   // static Future<String> loadModel() async {
   //   return Tflite.loadModel(
   //     model: "googlenet.tflite",
@@ -69,50 +96,71 @@ class _MainPageState extends State<MainPage> {
   //    //Do something with the results
   // }});
 
-  String _model = 'GoogLeNet';
-  File _image;
-  List _recognitions;
-  double _imageHeight;
-  double _imageWidth;
-  bool _busy = false;
-
-  Future getImage() async {
-    var image = await ImagePicker.pickImage(source: ImageSource.camera);
-    if (image == null) return;
-    setState(() {
-      _image = image;
-      _busy = true;
-    });
-//    predictImage(image);
-  }
-
   @override
   Widget build(BuildContext context) {
+    Size size = MediaQuery.of(context).size;
+    List<Widget> stackChildren = [];
+
+    if (_recognitions != null) {
+      stackChildren.add(Positioned(
+        top: 0.0,
+        left: 0.0,
+        width: size.width,
+        child: _image == null
+            ? Text('No image selected.')
+            : Container(
+                decoration: BoxDecoration(
+                    image: DecorationImage(
+                        alignment: Alignment.topCenter,
+                        image: MemoryImage(_recognitions),
+                        fit: BoxFit.fill)),
+                child: Opacity(opacity: 0.3, child: Image.file(_image))),
+      ));
+    } else {
+      stackChildren.add(Positioned(
+        top: 0.0,
+        left: 0.0,
+        width: size.width,
+        child: _image == null
+            ? Center(
+                child: Text('Please, select an image.',
+                    style: TextStyle(
+                      fontSize: 20.0,
+                      fontWeight: FontWeight.bold,
+                    )),
+              )
+            : Center(child: Image.file(_image)),
+      ));
+    }
+
+    if (_busy) {
+      stackChildren.add(const Opacity(
+        child: ModalBarrier(dismissible: false, color: Colors.grey),
+        opacity: 0.3,
+      ));
+      stackChildren.add(const Center(child: CircularProgressIndicator()));
+    }
+
+
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
         brightness:
             Brightness.light, // Normal Theme (.dark turns app into Dark Mode)
       ),
-      // debugShowCheckedModeBanner: false,
       home: Scaffold(
         appBar: AppBar(
           title: Center(
             child: Text('Crop Insect Classification'),
           ),
-          backgroundColor: Colors.orange[600],
+          backgroundColor: Colors.green, //deepPurple,
         ),
-        backgroundColor: Colors.lightGreen[400],
-        body: SafeArea( // Can be removed
-          child: Padding( // Can be removed
-            padding: EdgeInsets.all(15.0), // Can be removed
-            child: Center(
-              child: _image == null
-                  ? Text('No image selected.',
-                      style: TextStyle(
-                        fontSize: 20.0,
-                        fontWeight: FontWeight.bold,
-                      ))
-                  : Image.file(_image),
+        backgroundColor: Colors.yellow[300], //Colors.lightGreen[300],
+        body: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Stack(
+              children: stackChildren,
             ),
           ),
         ),
@@ -122,31 +170,10 @@ class _MainPageState extends State<MainPage> {
           child: Icon(Icons.add_a_photo),
           foregroundColor: Colors.white,
           backgroundColor: Colors.blue[900],
+          elevation: 7.0,
         ),
-
-        // body: SafeArea(
-        //   child: Padding(
-        //     padding: EdgeInsets.all(15.0),
-        //     child: Column(
-        //       children: <Widget>[
-        //         Center(
-        //           child: _image == null
-        //               ? Text('No Image Selected',
-        //                   style: TextStyle(
-        //                     fontSize: 20.0,
-        //                     fontWeight: FontWeight.bold,
-        //                   ))
-        //               : Image.file(_image),
-        //         ),
-        //         // floatingActionButton: FloatingActionButton(
-        //         //   onPressed: getImage(),
-        //         //   tooltip: 'Pick Image',
-        //         //   child: Icon(Icons.add_a_photo),
-        //         // ),
-        //       ],
-        //     ),
-        //   ),
-        // ),
+        floatingActionButtonLocation:
+            FloatingActionButtonLocation.endFloat, // Default value
       ),
     );
   }
