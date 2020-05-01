@@ -8,9 +8,6 @@ import 'dart:io';
 // import 'package:camera/camera.dart';
 // import 'dart:math' as math;
 
-// import 'camera.dart';
-// import 'render.dart';
-
 void main() {
   // Sets Portrait orientation only
   WidgetsFlutterBinding.ensureInitialized();
@@ -21,6 +18,20 @@ void main() {
 }
 
 class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: MainPage(),
+    );
+  }
+}
+
+class MainPage extends StatefulWidget {
+  @override
+  _MainPageState createState() => _MainPageState();
+}
+
+class _MainPageState extends State<MainPage> {
   // 'await' can only be used in a function body with either 'async' or 'async*' function
 
   // Method 1
@@ -58,39 +69,6 @@ class MyApp extends StatelessWidget {
   //    //Do something with the results
   // }});
 
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      theme: ThemeData(
-        brightness:
-            Brightness.light, // Normal Theme (.dark turns app into Dark Mode)
-      ),
-      debugShowCheckedModeBanner: false,
-      home: Scaffold(
-        appBar: AppBar(
-          title: Center(
-            child: Text('Crop Insect Classification'),
-          ),
-          backgroundColor: Colors.orange[600],
-        ),
-        backgroundColor: Colors.lightBlue[200],
-        body: SafeArea(
-          child: Padding(
-            padding: EdgeInsets.all(15.0),
-            child: MainPage(),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-class MainPage extends StatefulWidget {
-  @override
-  _MainPageState createState() => _MainPageState();
-}
-
-class _MainPageState extends State<MainPage> {
   String _model = 'GoogLeNet';
   File _image;
   List _recognitions;
@@ -110,23 +88,66 @@ class _MainPageState extends State<MainPage> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: <Widget>[
-        Center(
-          child: _image == null
-              ? Text('No Image Selected',
-                  style: TextStyle(
-                    fontSize: 20.0,
-                    fontWeight: FontWeight.bold,
-                  ))
-              : Image.file(_image),
+    return MaterialApp(
+      theme: ThemeData(
+        brightness:
+            Brightness.light, // Normal Theme (.dark turns app into Dark Mode)
+      ),
+      // debugShowCheckedModeBanner: false,
+      home: Scaffold(
+        appBar: AppBar(
+          title: Center(
+            child: Text('Crop Insect Classification'),
+          ),
+          backgroundColor: Colors.orange[600],
+        ),
+        backgroundColor: Colors.lightGreen[400],
+        body: SafeArea( // Can be removed
+          child: Padding( // Can be removed
+            padding: EdgeInsets.all(15.0), // Can be removed
+            child: Center(
+              child: _image == null
+                  ? Text('No image selected.',
+                      style: TextStyle(
+                        fontSize: 20.0,
+                        fontWeight: FontWeight.bold,
+                      ))
+                  : Image.file(_image),
+            ),
+          ),
         ),
         floatingActionButton: FloatingActionButton(
-          onPressed: getImage(),
+          onPressed: getImage,
           tooltip: 'Pick Image',
           child: Icon(Icons.add_a_photo),
+          foregroundColor: Colors.white,
+          backgroundColor: Colors.blue[900],
         ),
-      ],
+
+        // body: SafeArea(
+        //   child: Padding(
+        //     padding: EdgeInsets.all(15.0),
+        //     child: Column(
+        //       children: <Widget>[
+        //         Center(
+        //           child: _image == null
+        //               ? Text('No Image Selected',
+        //                   style: TextStyle(
+        //                     fontSize: 20.0,
+        //                     fontWeight: FontWeight.bold,
+        //                   ))
+        //               : Image.file(_image),
+        //         ),
+        //         // floatingActionButton: FloatingActionButton(
+        //         //   onPressed: getImage(),
+        //         //   tooltip: 'Pick Image',
+        //         //   child: Icon(Icons.add_a_photo),
+        //         // ),
+        //       ],
+        //     ),
+        //   ),
+        // ),
+      ),
     );
   }
 }
