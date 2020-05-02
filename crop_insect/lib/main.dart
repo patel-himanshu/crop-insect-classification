@@ -33,12 +33,13 @@ class MainPage extends StatefulWidget {
 
 class _MainPageState extends State<MainPage> {
   File _image;
-  List _recognitions;
+  List _recognitions = [0];
   // double _imageHeight;
   // double _imageWidth;
   bool _busy = false;
 
   void fileInfo(image) {
+    print('File Infor Function');
     new FileImage(image)
         .resolve(new ImageConfiguration())
         .addListener(ImageStreamListener((ImageInfo info, bool _) {
@@ -51,6 +52,7 @@ class _MainPageState extends State<MainPage> {
 
   // Function to upload image using Camera
   Future cameraUpload() async {
+    print('Camera Upload Function');
     var image = await ImagePicker.pickImage(source: ImageSource.camera);
     if (image == null) return;
     setState(() {
@@ -62,6 +64,7 @@ class _MainPageState extends State<MainPage> {
 
   // Function to upload image from Gallery
   Future galleryUpload() async {
+    print('Gallery Upload Function');
     var image = await ImagePicker.pickImage(source: ImageSource.gallery);
     if (image == null) return;
     setState(() {
@@ -71,28 +74,9 @@ class _MainPageState extends State<MainPage> {
     fileInfo(image);
   }
 
-  @override
-  void initState() {
-    super.initState();
-    _busy = true;
-
-    loadModel(_image).then((val) {
-      setState(() {
-        _busy = false;
-      });
-    });
-  }
-
-  Future loadModel(File image) async {
-    Tflite.close();
-    await Tflite.loadModel(
-      model: 'assets/googlenet.tflite',
-      labels: 'assets/labels.txt',
-      numThreads: 1, // Default value
-    );
-  }
-
   Future recognizeImage(File image) async {
+    print('recognizeImage');
+    print(_recognitions);
     List recognitions = await Tflite.runModelOnImage(
       path: image.path,
       numResults: 2, // Default = 5
@@ -104,23 +88,50 @@ class _MainPageState extends State<MainPage> {
     setState(() {
       _recognitions = recognitions;
     });
+    print(_recognitions);
   }
 
-  onSelect(model) async {
-    setState(() {
-      _busy = true;
-      _recognitions = null;
-    });
+  Future loadModel(File image) async {
+    Tflite.close();
+    print('loadModel Tflite.close()');
+    await Tflite.loadModel(
+      model: 'assets/googlenet.tflite',
+      labels: 'assets/labels.txt',
+      numThreads: 1, // Default value
+    );
+    recognizeImage(image);
+    print('loadModel recognizeImage completed');
+  }
 
-    await loadModel(_image);
+  @override
+  void initState() {
+    print('initState');
+    super.initState();
+    _busy = true;
 
-    if (_image != null)
-      fileInfo(_image);
-    else
+    loadModel(_image).then((val) {
       setState(() {
+         print('loadModel setState');
         _busy = false;
       });
+    });
   }
+
+  // onSelect(model) async {
+  //   setState(() {
+  //     _busy = true;
+  //     _recognitions = null;
+  //   });
+
+  //   await loadModel(_image);
+
+  //   if (_image != null)
+  //     fileInfo(_image);
+  //   else
+  //     setState(() {
+  //       _busy = false;
+  //     });
+  // }
 
   // static Future<String> loadModel() async {
   //   return Tflite.loadModel(
@@ -198,6 +209,7 @@ class _MainPageState extends State<MainPage> {
 
     // Displays Circular Progress Indicator, whenever app is processing
     if (_busy) {
+      print('Busy Function Activated');
       stackChildren.add(const Opacity(
         child: ModalBarrier(dismissible: false, color: Colors.grey),
         opacity: 0.3,
