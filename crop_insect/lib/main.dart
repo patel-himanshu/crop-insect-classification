@@ -21,6 +21,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       home: MainPage(),
     );
   }
@@ -39,7 +40,7 @@ class _MainPageState extends State<MainPage> {
   bool _busy = false;
 
   void fileInfo(image) {
-    print('File Infor Function');
+    print('File Info Function');
     new FileImage(image)
         .resolve(new ImageConfiguration())
         .addListener(ImageStreamListener((ImageInfo info, bool _) {
@@ -50,27 +51,24 @@ class _MainPageState extends State<MainPage> {
     }));
   }
 
-  // Function to upload image using Camera
-  Future cameraUpload() async {
-    print('Camera Upload Function');
-    var image = await ImagePicker.pickImage(source: ImageSource.camera);
-    if (image == null) return;
-    setState(() {
-      _image = image;
-      _busy = true;
-    });
-    fileInfo(image);
-  }
+  // Function to upload image using Camera or Gallery upload
+  Future imageUpload(int option) async {
+    print('Image Upload Function');
+    var image;
+    // Default image upload method is by Camera
+    if (option == 0) {
+      image = await ImagePicker.pickImage(source: ImageSource.camera);
+    } else {
+      image = await ImagePicker.pickImage(source: ImageSource.gallery);
+    }
 
-  // Function to upload image from Gallery
-  Future galleryUpload() async {
-    print('Gallery Upload Function');
-    var image = await ImagePicker.pickImage(source: ImageSource.gallery);
     if (image == null) return;
+
     setState(() {
       _image = image;
       _busy = true;
     });
+
     fileInfo(image);
   }
 
@@ -94,13 +92,20 @@ class _MainPageState extends State<MainPage> {
   Future loadModel(File image) async {
     Tflite.close();
     print('loadModel Tflite.close()');
+
     await Tflite.loadModel(
       model: 'assets/googlenet.tflite',
       labels: 'assets/labels.txt',
       numThreads: 1, // Default value
     );
-    recognizeImage(image);
-    print('loadModel recognizeImage completed');
+    print('Tflite.loadModel executed');
+
+    try {
+      recognizeImage(image);
+      print('loadModel recognizeImage completed');
+    } catch (e) {
+      print('loadModel recognizeImage failed');
+    }
   }
 
   @override
@@ -111,7 +116,7 @@ class _MainPageState extends State<MainPage> {
 
     loadModel(_image).then((val) {
       setState(() {
-         print('loadModel setState');
+        print('loadModel setState');
         _busy = false;
       });
     });
@@ -170,7 +175,15 @@ class _MainPageState extends State<MainPage> {
           left: 0.0,
           width: size.width,
           child: _image == null
-              ? Text('No image selected.')
+              ? Center(
+                  child: Text(
+                    'No image selected.',
+                    style: TextStyle(
+                      fontSize: 20.0,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                )
               : Text('If Condition'),
               // : Container(
               //     decoration: BoxDecoration(
@@ -202,7 +215,8 @@ class _MainPageState extends State<MainPage> {
                     ),
                   ),
                 )
-              : Text('Else Condition'), //Center(child: Image.file(_image)),
+              // : Text('Else Condition'),
+              : Center(child: Image.file(_image)),
         ),
       );
     }
@@ -216,7 +230,8 @@ class _MainPageState extends State<MainPage> {
       ));
       stackChildren.add(const Center(child: CircularProgressIndicator()));
     }
-
+  
+    // Final MaterialApp with Scaffold
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
@@ -243,7 +258,7 @@ class _MainPageState extends State<MainPage> {
           mainAxisAlignment: MainAxisAlignment.end,
           children: <Widget>[
             FloatingActionButton(
-              onPressed: cameraUpload,
+              onPressed: () => imageUpload(0),
               tooltip: 'Capture Image from Camera',
               child: Icon(Icons.add_a_photo),
               foregroundColor: Colors.white,
@@ -254,7 +269,7 @@ class _MainPageState extends State<MainPage> {
               height: 5.0,
             ),
             FloatingActionButton(
-              onPressed: galleryUpload,
+              onPressed: () => imageUpload(1),
               tooltip: 'Upload Image from Gallery',
               child: Icon(Icons.insert_photo),
               foregroundColor: Colors.white,

@@ -1,5 +1,7 @@
 name: crop_insect
 description: A new Flutter project.
+author: Himanshu Patel (hpatel27299@gmail.com)
+github: https://github.com/patel-himanshu/
 
 version: 1.0.0+1
 
@@ -15,6 +17,7 @@ dependencies:
   tflite: ^1.0.5
   camera: ^0.5.7+4
   image_picker: ^0.6.5+3
+  
 
 dev_dependencies:
   flutter_test:
