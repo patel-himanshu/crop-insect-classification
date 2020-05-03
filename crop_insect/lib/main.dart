@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:tflite/tflite.dart';
+// import 'package:tflite/tflite.dart';
+import 'package:firebase_ml_vision/firebase_ml_vision.dart';
 import 'package:image_picker/image_picker.dart';
-// import 'dart:async'; // Potentially required to fix problem of "Undefined class File"
 import 'dart:io';
+// import 'dart:async'; // Potentially required to fix problem of "Undefined class File"
 
 // import 'package:camera/camera.dart';
 // import 'dart:math' as math;
@@ -72,96 +73,96 @@ class _MainPageState extends State<MainPage> {
     fileInfo(image);
   }
 
-  Future recognizeImage(File image) async {
-    print('recognizeImage');
-    print(_recognitions);
-    List recognitions = await Tflite.runModelOnImage(
-      path: image.path,
-      numResults: 2, // Default = 5
-      threshold: 0.2, // Default = 0.1
-      imageMean: 0.0, // Default = 117.0
-      imageStd: 255.0, // Default = 1.0
-    );
+  // Future recognizeImage(File image) async {
+  //   print('recognizeImage');
+  //   print(_recognitions);
+  //   List recognitions = await Tflite.runModelOnImage(
+  //     path: image.path,
+  //     numResults: 2, // Default = 5
+  //     threshold: 0.2, // Default = 0.1
+  //     imageMean: 0.0, // Default = 117.0
+  //     imageStd: 255.0, // Default = 1.0
+  //   );
 
-    setState(() {
-      _recognitions = recognitions;
-    });
-    print(_recognitions);
-  }
-
-  Future loadModel(File image) async {
-    Tflite.close();
-    print('loadModel Tflite.close()');
-
-    await Tflite.loadModel(
-      model: 'assets/googlenet.tflite',
-      labels: 'assets/labels.txt',
-      numThreads: 1, // Default value
-    );
-    print('Tflite.loadModel executed');
-
-    try {
-      recognizeImage(image);
-      print('loadModel recognizeImage completed');
-    } catch (e) {
-      print('loadModel recognizeImage failed');
-    }
-  }
-
-  @override
-  void initState() {
-    print('initState');
-    super.initState();
-    _busy = true;
-
-    loadModel(_image).then((val) {
-      setState(() {
-        print('loadModel setState');
-        _busy = false;
-      });
-    });
-  }
-
-  // onSelect(model) async {
   //   setState(() {
-  //     _busy = true;
-  //     _recognitions = null;
+  //     _recognitions = recognitions;
   //   });
+  //   print(_recognitions);
+  // }
 
-  //   await loadModel(_image);
+  // Future loadModel(File image) async {
+  //   Tflite.close();
+  //   print('loadModel Tflite.close()');
 
-  //   if (_image != null)
-  //     fileInfo(_image);
-  //   else
+  //   await Tflite.loadModel(
+  //     model: 'assets/googlenet.tflite',
+  //     labels: 'assets/labels.txt',
+  //     numThreads: 1, // Default value
+  //   );
+  //   print('Tflite.loadModel executed');
+
+  //   try {
+  //     recognizeImage(image);
+  //     print('loadModel recognizeImage completed');
+  //   } catch (e) {
+  //     print('loadModel recognizeImage failed');
+  //   }
+  // }
+
+  // @override
+  // void initState() {
+  //   print('initState');
+  //   super.initState();
+  //   _busy = true;
+
+  //   loadModel(_image).then((val) {
   //     setState(() {
+  //       print('loadModel setState');
   //       _busy = false;
   //     });
-  // }
-
-  // static Future<String> loadModel() async {
-  //   return Tflite.loadModel(
-  //     model: "googlenet.tflite",
-  //     labels: "labels.txt",
-  //   );
-  // }
-
-  // void initState() {
-  //   super.initState(); //Load TFLite Model
-  //   TFLiteHelper.loadModel().then((value) {
-  //     setState(() {
-  //       modelLoaded = true;
-  //     });
   //   });
   // }
 
-  // await Tflite.runModelOnFrame(
-  //       bytesList: image.planes.map((plane) {
-  //         return plane.bytes;
-  //       }).toList(),
-  //       numResults: 5)
-  //   .then((value) {  if (value.isNotEmpty) {
-  //    //Do something with the results
-  // }});
+  // // onSelect(model) async {
+  // //   setState(() {
+  // //     _busy = true;
+  // //     _recognitions = null;
+  // //   });
+
+  // //   await loadModel(_image);
+
+  // //   if (_image != null)
+  // //     fileInfo(_image);
+  // //   else
+  // //     setState(() {
+  // //       _busy = false;
+  // //     });
+  // // }
+
+  // // static Future<String> loadModel() async {
+  // //   return Tflite.loadModel(
+  // //     model: "googlenet.tflite",
+  // //     labels: "labels.txt",
+  // //   );
+  // // }
+
+  // // void initState() {
+  // //   super.initState(); //Load TFLite Model
+  // //   TFLiteHelper.loadModel().then((value) {
+  // //     setState(() {
+  // //       modelLoaded = true;
+  // //     });
+  // //   });
+  // // }
+
+  // // await Tflite.runModelOnFrame(
+  // //       bytesList: image.planes.map((plane) {
+  // //         return plane.bytes;
+  // //       }).toList(),
+  // //       numResults: 5)
+  // //   .then((value) {  if (value.isNotEmpty) {
+  // //    //Do something with the results
+  // // }});
 
   @override
   Widget build(BuildContext context) {
