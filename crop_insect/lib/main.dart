@@ -76,20 +76,30 @@ class _MainPageState extends State<MainPage> {
           left: 0.0,
           width: size.width,
           child: _image == null
-              ? Center(
-                  child: Text(
-                    'No image selected.',
-                    style: Theme.of(context).textTheme.title,
-                  ),
+              ? Column(
+                  children: <Widget>[
+                    SizedBox(
+                      height: MediaQuery.of(context).size.height / 3,
+                    ),
+                    Center(
+                      child: Text(
+                        'No image selected. \n\nPlease, select an image using \n(1) Your phone\'s Camera \n(2) Your Image Gallery.',
+                        style: Theme.of(context).textTheme.title,
+                        textAlign: TextAlign.center,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                  ],
                 )
               : Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: Column(
-                  children: <Widget>[
-                Container(
-                    child: Image.file(_image),
-                  ),
-                    Container(
+                  padding: const EdgeInsets.all(8.0),
+                  child: Column(
+                    children: <Widget>[
+                      Container(
+                        height: MediaQuery.of(context).size.height / 2,
+                        child: Image.file(_image),
+                      ),
+                      Container(
                         height: 200.0,
                         child: ListView.builder(
                           itemCount: _recognitions.length,
@@ -98,35 +108,24 @@ class _MainPageState extends State<MainPage> {
                               title: Center(
                                 child: Text(
                                   _recognitions[index]['label'],
-                                style: Theme.of(context).textTheme.title,
+                                  style: Theme.of(context).textTheme.title,
                                 ),
                               ),
                               subtitle: Center(
                                 child: Text(
                                   "Confidence: ${_recognitions[index]['confidence'].toString()}",
-                                  style: TextStyle(fontWeight: FontWeight.w700,),
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w700,
+                                  ),
                                 ),
                               ),
                             );
                           },
                         ),
                       ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-          // : Text('If Condition'),
-          // : Container(
-          //     decoration: BoxDecoration(
-          //       image: DecorationImage(
-          //           alignment: Alignment.topCenter,
-          //           image: MemoryImage(_recognitions),
-          //           fit: BoxFit.fill),
-          //     ),
-          //     child: Opacity(
-          //       opacity: 0.3,
-          //       child: Image.file(_image),
-          //     ),
-          //   ),
         ),
       );
     } else {
@@ -142,7 +141,6 @@ class _MainPageState extends State<MainPage> {
                     style: Theme.of(context).textTheme.title,
                   ),
                 )
-              // : Text('Else Condition'),
               : Center(child: Image.file(_image)),
         ),
       );
@@ -164,11 +162,17 @@ class _MainPageState extends State<MainPage> {
       home: Scaffold(
         appBar: AppBar(
           title: Center(
-            child: Text('Crop Insect Classification'),
+            child: Text(
+              'Crop Insect Classification',
+              style: TextStyle(
+                fontSize: 25.0,
+                color: Colors.yellow,
+              ),
+            ),
           ),
-          backgroundColor: Colors.green, //deepPurple,
+          backgroundColor: Colors.green[700], //deepPurple,
         ),
-        backgroundColor: Colors.yellow[300], //Colors.lightGreen[300],
+        backgroundColor: Colors.orange[200], //Colors.lightGreen[300],
         body: SafeArea(
           child: Padding(
             padding: const EdgeInsets.all(8.0),

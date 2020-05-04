@@ -21,14 +21,6 @@ class Model {
   Future<List> predictImage(File image) async {
     if (image == null) return [];
 
-    // var imagePath;
-    // try {
-    //   imagePath = image.path;
-    //   print('Image path is $imagePath');
-    // } catch (e) {
-    //   print('Image Path not obtained');
-    // }
-
     var recognitions = await Tflite.runModelOnImage(
       path: image.path,
       // path: imagePath,
