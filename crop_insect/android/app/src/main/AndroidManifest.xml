@@ -27,6 +27,6 @@
             android:name="flutterEmbedding"
             android:value="2" />
         <!-- Declaring the INTERNET permission (Necessary in Android, not iOS) -->
-        <uses-permission android:name="android.permission.INTERNET" />
+        <!-- <uses-permission android:name="android.permission.INTERNET" /> -->
     </application>
 </manifest>
