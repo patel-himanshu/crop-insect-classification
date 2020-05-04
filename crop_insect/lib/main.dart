@@ -1,10 +1,9 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 // import 'package:tflite/tflite.dart';
-// import 'package:mlkit/mlkit.dart';
-// import 'package:firebase_ml_vision/firebase_ml_vision.dart';
 import 'package:image_picker/image_picker.dart';
-import 'dart:io';
+import 'package:crop_insect/model.dart';
 
 void main() {
   // Sets Portrait orientation only
@@ -32,27 +31,16 @@ class MainPage extends StatefulWidget {
 
 class _MainPageState extends State<MainPage> {
   File _image;
-  List _recognitions = [0];
-  // double _imageHeight;
-  // double _imageWidth;
-  bool _busy = false;
+  List _recognitions = [];
+
+  Model googlenet =
+      Model(model: 'assets/googlenet.tflite', labels: 'assets/labels.txt');
 
   @override
-  initState() {
+  void initState() {
     super.initState();
+    googlenet.loadModel();
   }
-
-  // void fileInfo(image) {
-  //   print('File Info Function');
-  //   new FileImage(image)
-  //       .resolve(new ImageConfiguration())
-  //       .addListener(ImageStreamListener((ImageInfo info, bool _) {
-  //     setState(() {
-  //       // _imageHeight = info.image.height.toDouble();
-  //       // _imageWidth = info.image.width.toDouble();
-  //     });
-  //   }));
-  // }
 
   // Function to upload image using Camera or Gallery upload
   Future imageUpload(int option) async {
@@ -66,13 +54,14 @@ class _MainPageState extends State<MainPage> {
     }
 
     if (image == null) return;
-
     setState(() {
       _image = image;
-      _busy = true;
     });
 
-    // fileInfo(image);
+    List recognitions = await googlenet.predictImage(image);
+    setState(() {
+      _recognitions = recognitions;
+    });
   }
 
   @override
@@ -93,7 +82,39 @@ class _MainPageState extends State<MainPage> {
                     style: Theme.of(context).textTheme.title,
                   ),
                 )
-              : Text('If Condition'),
+              : Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Column(
+                  children: <Widget>[
+                Container(
+                    child: Image.file(_image),
+                  ),
+                    Container(
+                        height: 200.0,
+                        child: ListView.builder(
+                          itemCount: _recognitions.length,
+                          itemBuilder: (context, index) {
+                            return ListTile(
+                              title: Center(
+                                child: Text(
+                                  _recognitions[index]['label'],
+                                style: Theme.of(context).textTheme.title,
+                                ),
+                              ),
+                              subtitle: Center(
+                                child: Text(
+                                  "Confidence: ${_recognitions[index]['confidence'].toString()}",
+                                  style: TextStyle(fontWeight: FontWeight.w700,),
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                  ],
+                ),
+              ),
+          // : Text('If Condition'),
           // : Container(
           //     decoration: BoxDecoration(
           //       image: DecorationImage(
@@ -123,22 +144,6 @@ class _MainPageState extends State<MainPage> {
                 )
               // : Text('Else Condition'),
               : Center(child: Image.file(_image)),
-        ),
-      );
-    }
-
-    // Displays Circular Progress Indicator, whenever app is processing
-    if (_busy) {
-      print('Busy Function Activated');
-      stackChildren.add(
-        const Opacity(
-          child: ModalBarrier(dismissible: false, color: Colors.grey),
-          opacity: 0.3,
-        ),
-      );
-      stackChildren.add(
-        const Center(
-          child: CircularProgressIndicator(),
         ),
       );
     }
