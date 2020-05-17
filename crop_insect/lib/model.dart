@@ -23,13 +23,13 @@ class Model {
 
     var recognitions = await Tflite.runModelOnImage(
       path: image.path,
-      // path: imagePath,
       imageMean: 0.0,
       imageStd: 255.0,
       numResults: 2,
       threshold: 0.2,
       asynch: true,
     );
+    print(recognitions);
     return recognitions;
   }
 }

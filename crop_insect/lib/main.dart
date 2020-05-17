@@ -33,8 +33,9 @@ class _MainPageState extends State<MainPage> {
   File _image;
   List _recognitions = [];
 
+  // Loads GoogLeNet model
   Model googlenet =
-      Model(model: 'assets/googlenet.tflite', labels: 'assets/labels.txt');
+      Model(model: 'assets/mobilenet.tflite', labels: 'assets/labels.txt');
 
   @override
   void initState() {
@@ -46,7 +47,6 @@ class _MainPageState extends State<MainPage> {
   Future imageUpload(int option) async {
     print('Image Upload Function');
     var image;
-    // Default image upload method is by Camera
     if (option == 0) {
       image = await ImagePicker.pickImage(source: ImageSource.camera);
     } else {
@@ -58,6 +58,7 @@ class _MainPageState extends State<MainPage> {
       _image = image;
     });
 
+    // Performs the predicitions
     List recognitions = await googlenet.predictImage(image);
     setState(() {
       _recognitions = recognitions;
