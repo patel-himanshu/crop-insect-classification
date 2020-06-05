@@ -1,7 +1,7 @@
 import 'dart:io';
+import 'package:image/image.dart' as IMG;
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-// import 'package:tflite/tflite.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:crop_insect/model.dart';
 
@@ -35,7 +35,7 @@ class _MainPageState extends State<MainPage> {
 
   // Loads GoogLeNet model
   Model googlenet =
-      Model(model: 'assets/mobilenet.tflite', labels: 'assets/labels.txt');
+      Model(model: 'assets/googlenet2.tflite', labels: 'assets/labels.txt');
 
   @override
   void initState() {
@@ -58,8 +58,12 @@ class _MainPageState extends State<MainPage> {
       _image = image;
     });
 
+    IMG.Image image1 = IMG.decodeJpg(File(image).readAsBytesSync());
+    IMG.Image image2 = IMG.copyResize(image1, width: 32, height: 32);
+    File image3 = File('image2.png')..writeAsBytesSync(IMG.encodePng(image2));
+
     // Performs the predicitions
-    List recognitions = await googlenet.predictImage(image);
+    List recognitions = await googlenet.predictImage(image3);
     setState(() {
       _recognitions = recognitions;
     });
