@@ -13,15 +13,16 @@
 </head>
 
 <body>
-    <nav class="navbar navbar-dark bg-dark">
+    <center>
+        <nav class="navbar">
+            <div class="container">
+                <h1>Crop Insect Classification</h1>
+            </div>
+        </nav>
         <div class="container">
-            <a class="navbar-brand" href="#">Crop Insect Classification</a>
-            <button class="btn btn-outline-secondary my-2 my-sm-0" type="submit">Help</button>
+            <div id="content" style="margin-top:2em">{% block content %}{% endblock %}</div>
         </div>
-    </nav>
-    <div class="container">
-        <div id="content" style="margin-top:2em">{% block content %}{% endblock %}</div>
-    </div>
+    </center>
 </body>
 
 <footer>
