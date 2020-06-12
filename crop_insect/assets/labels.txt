@@ -1,4 +1,4 @@
 Eocanthecona Bug (A)
-Tobacco Caterpillar (B)
-Red Hairy Caterpillar (C)
 Larva Spodoptera (D)
+Red Hairy Caterpillar (C)
+Tobacco Caterpillar (B)

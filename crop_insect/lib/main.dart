@@ -35,7 +35,7 @@ class _MainPageState extends State<MainPage> {
 
   // Loads GoogLeNet model
   Model googlenet =
-      Model(model: 'assets/googlenet2.tflite', labels: 'assets/labels.txt');
+      Model(model: 'assets/model.tflite', labels: 'assets/labels.txt');
 
   @override
   void initState() {
@@ -59,7 +59,7 @@ class _MainPageState extends State<MainPage> {
     });
 
     IMG.Image image1 = IMG.decodeJpg(File(image).readAsBytesSync());
-    IMG.Image image2 = IMG.copyResize(image1, width: 32, height: 32);
+    IMG.Image image2 = IMG.copyResize(image1, width: 224, height: 224);
     File image3 = File('image2.png')..writeAsBytesSync(IMG.encodePng(image2));
 
     // Performs the predicitions
