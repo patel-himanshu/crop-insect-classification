@@ -58,12 +58,12 @@ class _MainPageState extends State<MainPage> {
       _image = image;
     });
 
-    IMG.Image image1 = IMG.decodeJpg(File(image).readAsBytesSync());
-    IMG.Image image2 = IMG.copyResize(image1, width: 224, height: 224);
-    File image3 = File('image2.png')..writeAsBytesSync(IMG.encodePng(image2));
+    // IMG.Image image1 = IMG.decodeJpg(File(image).readAsBytesSync());
+    // IMG.Image image2 = IMG.copyResize(image1, width: 224, height: 224);
+    // File image3 = File('image2.png')..writeAsBytesSync(IMG.encodePng(image2));
 
     // Performs the predicitions
-    List recognitions = await googlenet.predictImage(image3);
+    List recognitions = await googlenet.predictImage(image);
     setState(() {
       _recognitions = recognitions;
     });
@@ -89,7 +89,7 @@ class _MainPageState extends State<MainPage> {
                     Center(
                       child: Text(
                         'No image selected. \n\nPlease, select an image using \n(1) Your phone\'s Camera \n(2) Your Image Gallery.',
-                        style: Theme.of(context).textTheme.title,
+                        style: Theme.of(context).textTheme.headline6,
                         textAlign: TextAlign.center,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -113,7 +113,7 @@ class _MainPageState extends State<MainPage> {
                               title: Center(
                                 child: Text(
                                   _recognitions[index]['label'],
-                                  style: Theme.of(context).textTheme.title,
+                                  style: Theme.of(context).textTheme.headline6,
                                 ),
                               ),
                               subtitle: Center(
@@ -143,7 +143,7 @@ class _MainPageState extends State<MainPage> {
               ? Center(
                   child: Text(
                     'Please, select an image.',
-                    style: Theme.of(context).textTheme.title,
+                    style: Theme.of(context).textTheme.headline6,
                   ),
                 )
               : Center(child: Image.file(_image)),
@@ -158,7 +158,7 @@ class _MainPageState extends State<MainPage> {
         brightness:
             Brightness.light, // Normal Theme (.dark turns app into Dark Mode)
         textTheme: ThemeData.light().textTheme.copyWith(
-              title: TextStyle(
+              headline6: TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.bold,
               ),
