@@ -14,4 +14,4 @@
     - MobileNet_5.ipynb
     - VGG16_5.ipynb
     
-The web app developed for this project can be found [here](https://github.com/patel-himanshu/Insect-Classifier-WebApp)
+The web app developed for this project can be found [here](https://github.com/patel-himanshu/Insect-Classifier-Web-App)
